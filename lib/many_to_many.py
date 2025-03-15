@@ -35,8 +35,38 @@ class Book:
 
     def __repr__(self):
         return f"Book('{self.title}')"
+    
+    def contracts(self):
+        """Returns a list of contracts associated with this book."""
+        return [contract for contract in Contract.all if contract.book == self]
 
+    def authors(self):
+        """Returns a list of authors who have contracts for this book."""
+        return list(set(contract.author for contract in self.contracts()))
 
 
 class Contract:
-    pass
+    all = []
+    
+    def __init__(self, author, book, date, royalties):
+        if not isinstance(author, Author):
+            raise Exception("Author must be an instance of Author class")
+        if not isinstance(book, Book):
+            raise Exception("Book must be an instance of Book class")
+        if not isinstance(date, str) or not date.strip():
+            raise Exception("Date must be a non-empty string")
+        if not isinstance(royalties, int) or royalties < 0:
+            raise Exception("Royalties must be a non-negative integer")
+
+        self.author = author
+        self.book = book
+        self.date = date
+        self.royalties = royalties
+        Contract.all.append(self)
+
+    def __repr__(self):
+        return f"Contract({self.author.name}, {self.book.title}, {self.date}, {self.royalties}%)"
+
+    @classmethod
+    def contracts_by_date(cls, date):
+        return [contract for contract in cls.all if contract.date == date]
